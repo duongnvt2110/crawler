@@ -7,5 +7,7 @@ Demo Crawler Using XPath
 Set Up
 + git clone git@github.com:duongnvt2110/crawler.git
 + composer install 
++ create file .env and copy content from .envexample.
 + php artisan key:generate
++ Testing
 
