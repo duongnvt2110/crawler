@@ -9,5 +9,6 @@ Set Up
 + composer install 
 + create file .env and copy content from .envexample.
 + php artisan key:generate
++ php artisan migrate:fresh
 + Testing
 
