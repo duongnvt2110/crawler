@@ -12,6 +12,8 @@ class CrawlerInfo extends Command
     protected $patt;
 
     protected $data;
+
+    protected $cache_info = 'cache_info';
     /**
      * The name and signature of the console command.
      *
@@ -47,7 +49,10 @@ class CrawlerInfo extends Command
         $urls = unserialize($this->arguments('info')['info'][0]);
         $patts = unserialize($this->arguments('info')['info'][1]);
         $data = $this->utils->getDataColumnFromUrlWithDom($patts,$urls);
-        Storage::disk('local')->append('public/cache_info',serialize($data));
+        if(isset($data['status'])){
+            return $data;
+        }
+        $this->utils->reformatData('cache_info',$data);
     }
 
 }

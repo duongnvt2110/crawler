@@ -4,30 +4,37 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use App\Services\Utils;
 class PatternSelectorController extends Controller
 {
     //
-    protected $filePattenAllUrl = 'all_url';
+    protected $pattenAllUrl = 'patt_url';
 
-    protected $filePattenInfoProduct = 'info_product';
+    protected $pattenInfo = 'patt_info';
+
+    protected $utils;
+
+    public function __construct()
+    {
+        $this->utils = new Utils();
+    }
 
     public function setPatterngGetAllUrl(Request $request ){
         $patt = $request->post('patt');
-        Storage::disk('local')->put('public/'.$this->filePattenAllUrl,$patt);
+        $this->utils->cache_set("{$this->pattenAllUrl}",$patt);
     }
 
     public function setPatternGetInfoProduct(Request $request){
         $patt = $request->post('patt');
-        Storage::disk('local')->put('public/'.$this->filePattenInfoProduct,$patt);
+        $this->utils->cache_set("{$this->pattenInfo}",$patt);
     }
 
     public function getPatterngGetAllUrl(Request $request ){
-        return Storage::disk('local')->get('public/'.$this->filePattenAllUrl);
+        return $this->utils->cache_get("{$this->pattenAllUrl}");
     }
 
     public function getPatternGetInfoProduct(Request $request){
-        return Storage::disk('local')->get('public/'.$this->filePattenInfoProduct);
+        return $this->utils->cache_get("{$this->pattenInfo}");
     }
 
     public function deletePatten(Request $request){

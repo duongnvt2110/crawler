@@ -65,6 +65,7 @@
                 <form action="{{route('exportData')}}" method='GET' style="text-align: center;margin: 10px;">
                     <button type="submit" class="btn-export-data btn btn-success" type="submit" class="display: flex;">Export Excel</button>
                 </form>
+                <h3 class="form-button message-error" style="color:red;"></h3>
             </div>
             <div class="modal fade progressModal form-group" id="progress-modal" role="dialog" aria-labelledby="progressModal" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
@@ -102,16 +103,24 @@
                         data: {key:key},
                         type: 'POST',
                         success: function(result){
-                            if(result.value == 100 || result.currentKey > result.maxKey){
-                                $('.progress-bar').attr('aria-valuenow', result.value).css('width', result.value+'%').text(result.value);
+                            if(result.status == 204){
                                 setTimeout(function(){
                                     $('.progressModal').modal('hide');
+                                    $('.progress-bar').attr('aria-valuenow', 0).css('width', 0+'%').text(0);
                                 }, 1000);
-                                $('.progress-bar').attr('aria-valuenow', 0).css('width', 0+'%').text(0);
-                                return;
+                                $('.message-error').text(result.error);
                             }else{
-                                $('.progress-bar').attr('aria-valuenow', result.value).css('width', result.value+'%').text(result.value);
-                                extractFunc(result.currentKey);
+                                if(result.value == 100 || result.currentKey > result.maxKey){
+                                    $('.progress-bar').attr('aria-valuenow', result.value).css('width', result.value+'%').text(result.value);
+                                    setTimeout(function(){
+                                        $('.progressModal').modal('hide');
+                                        $('.progress-bar').attr('aria-valuenow', 0).css('width', 0+'%').text(0);
+                                    }, 1000);
+                                    return;
+                                }else{
+                                    $('.progress-bar').attr('aria-valuenow', result.value).css('width', result.value+'%').text(result.value);
+                                    extractFunc(result.currentKey);
+                                }
                             }
                         }
                     });
@@ -163,16 +172,24 @@
                         data: {key:key},
                         type: 'POST',
                         success: function(result){
-                            if(result.value == 100 || result.currentKey > result.maxKey ){
-                                $('.progress-bar').attr('aria-valuenow', result.value).css('width', result.value+'%').text(result.value);
+                            if(result.status == 204){
                                 setTimeout(function(){
                                     $('.progressModal').modal('hide');
+                                    $('.progress-bar').attr('aria-valuenow', 0).css('width', 0+'%').text(0);
                                 }, 1000);
-                                $('.progress-bar').attr('aria-valuenow', 0).css('width', 0+'%').text(0);
-                                return;
+                                $('.message-error').text(result.error);
                             }else{
-                                $('.progress-bar').attr('aria-valuenow', result.value).css('width', result.value+'%').text(result.value);
-                                extractFunc(result.currentKey);
+                                if(result.value == 100 || result.currentKey > result.maxKey ){
+                                    $('.progress-bar').attr('aria-valuenow', result.value).css('width', result.value+'%').text(result.value);
+                                    setTimeout(function(){
+                                        $('.progressModal').modal('hide');
+                                        $('.progress-bar').attr('aria-valuenow', 0).css('width', 0+'%').text(0);
+                                    }, 1000);
+                                    return;
+                                }else{
+                                    $('.progress-bar').attr('aria-valuenow', result.value).css('width', result.value+'%').text(result.value);
+                                    extractFunc(result.currentKey);
+                                }
                             }
                         }
                     });
@@ -217,20 +234,6 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     url: "{{route('showPattUrl')}}",
-                    type: 'POST',
-                    async: true,
-                    success: function(result){
-                        $('.patt').val(result);
-                    }
-                });
-            });
-
-            $(".btn-show-pattern-info").click(function(){
-                $.ajax({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    url: "{{route('showPattInfo')}}",
                     type: 'POST',
                     async: true,
                     success: function(result){
