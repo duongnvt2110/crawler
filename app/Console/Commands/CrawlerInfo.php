@@ -48,11 +48,12 @@ class CrawlerInfo extends Command
     {
         $urls = unserialize($this->arguments('info')['info'][0]);
         $patts = unserialize($this->arguments('info')['info'][1]);
+        $keys = unserialize($this->arguments('info')['info'][2]);
         $data = $this->utils->getDataColumnFromUrlWithDom($patts,$urls);
         if(isset($data['status'])){
             return $data;
         }
-        $this->utils->reformatData('cache_info',$data);
+        $this->utils->reformatData($keys,$data);
     }
 
 }

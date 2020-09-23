@@ -42,16 +42,6 @@ class CrawlController extends Controller
         return $data;
     }
 
-    public function getData($patt,$url,$key){
-        $patt = $this->utils->getAllPattern($patt);
-        $data = $this->utils->getDataColumnFromUrlWithDom($patt,$url);
-        if(isset($data['status'])){
-            return $data;
-        }
-        $this->utils->reformatData($key,$data);
-    }
-
-
     public function getAllUrl(Request $request){
         $key = intval($request->post('key'));
         $pattUrl = $this->utils->cache_get($this->pattenAllUrl);
@@ -70,16 +60,15 @@ class CrawlController extends Controller
         }
 
         $urls = array_chunk($urls,40);
-        $data = $this->getData($pattUrl[0],$urls[$key],$this->dataUrl);
-        if(isset($data['status'])){
-            return $data;
-        }
+        $patts = $this->utils->getAllPattern($pattUrl[0]);
+        $this->createThreadGetInfo($urls[$key],$patts,$this->dataUrl);
+
         $progressCount = $key+1;
         $progressPercent = ($progressCount/count($urls))*100;
-        if($progressPercent == 100){
-            $urlSql = $this->utils->cache_get($this->dataUrl);
-            Crawl::create(['name'=>'esty','url'=>json_encode($urlSql)]);
-        }
+        // if($progressPercent == 100){
+        //     $urlSql = $this->utils->cache_get($this->dataUrl);
+        //     Crawl::create(['name'=>'esty','url'=>json_encode($urlSql)]);
+        // }
         return ['value'=>intval($progressPercent),'currentKey'=>$progressCount,'maxKey'=>count($urls)];
     }
 
@@ -97,23 +86,23 @@ class CrawlController extends Controller
         $data = array_values($data);
         $patts = $this->utils->cache_get("{$this->pattenInfo}");
         $arrayPatt = $this->utils->getAllPattern($patts);
-        $this->createThreadGetInfo($data[$key],$arrayPatt);
+        $this->createThreadGetInfo($data[$key],$arrayPatt,$this->dataInfo);
 
         $progressCount = $key+1;
         $progressPercent = ($progressCount/count($data))*100;
-        $dataSql = $this->utils->cache_get($this->dataInfo);
-        if($progressPercent == 100){
-            $dataSql = $this->utils->cache_get($this->dataUrl);
-            Crawl::where('name','=','esty')->update(['data'=>json_encode($dataSql)]);
-        }
+        //$dataSql = $this->utils->cache_get($this->dataInfo);
+        // if($progressPercent == 100){
+        //     $dataSql = $this->utils->cache_get($this->dataUrl);
+        //     Crawl::where('name','=','esty')->update(['data'=>json_encode($dataSql)]);
+        // }
         return ['value'=>intval($progressPercent),'currentKey'=>$progressCount,'maxKey'=>count($data)-1];
     }
 
-    public function createThreadGetInfo($urls,$arrayPatt){
+    public function createThreadGetInfo($urls,$arrayPatt,$keys){
         $data = array_chunk($urls,20);
         for ($i = 0; $i < $this->numberOfProcess; $i++) {
             if(isset($data[$i])){
-                $process = new Process(['php',base_path('artisan'),'craw:get',serialize($data[$i]),serialize($arrayPatt),'&']);
+                $process = new Process(['php',base_path('artisan'),'craw:get',serialize($data[$i]),serialize($arrayPatt),serialize($keys),'&']);
                 $process->setTimeout(0);
                 $process->disableOutput();
                 $process->start();
@@ -135,7 +124,6 @@ class CrawlController extends Controller
         foreach($urls['src'] as &$url){
            CrawlerJob::dispatch($url,$arrayPatt,$this->dataInfo);
         }
-
     }
 
     public function exportData(){

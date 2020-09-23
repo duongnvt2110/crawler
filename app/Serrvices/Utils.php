@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
+use Illuminate\Support\Facades\Redis;
 
 class Utils {
 
@@ -35,10 +36,15 @@ class Utils {
                                 if(!empty($elements->item($i)->value)){
                                     $data[$url][$keyValue] = $elements->item($i)->value;
                                     $keyValue++;
+                                }else if(!empty($elements->item($i)->wholeText)){
+                                    $data[$url][$keyValue] = trim($elements->item($i)->wholeText);
+                                    $keyValue++;
                                 }
                             }
+                            //Redis::hSet($patt[1],$url,json_encode($data[$url]));
                         }else{
                             $data[$url][$keyValue] = "";
+                            //Redis::hSet($patt[1],$url,'');
                         }
                     }
                 }
